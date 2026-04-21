@@ -1,0 +1,389 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ========================
+// CORE MULTI-TENANT
+// ========================
+
+model Company {
+  id        String   @id @default(uuid())
+  name      String
+  document  String?  @unique
+  createdAt DateTime @default(now())
+
+  users             User[]
+  roles             Role[]
+  financialAccounts FinancialAccount[]
+  transactions      Transaction[]
+  categories        Category[]
+
+  drivers   Driver[]
+  licenses  License[]
+  contracts Contract[]
+
+  customers Customer[]
+  suppliers Supplier[]
+  banks     Bank[]
+
+  serviceOrders ServiceOrder[]
+  partners      Partner[]
+  networkLinks  NetworkLink[]
+
+  @@index([name])
+}
+
+// ========================
+// CADASTROS
+// ========================
+
+model Customer {
+  id        String   @id @default(uuid())
+  name      String
+  document  String?
+  email     String?
+  phone     String?
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  transactions  Transaction[]
+  serviceOrders ServiceOrder[]
+
+  createdAt DateTime @default(now())
+
+  @@index([companyId])
+}
+
+model Supplier {
+  id        String   @id @default(uuid())
+  name      String
+  document  String?
+  email     String?
+  phone     String?
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  transactions Transaction[]
+
+  createdAt DateTime @default(now())
+
+  @@index([companyId])
+}
+
+model Bank {
+  id   String @id @default(uuid())
+  name String
+  code String
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  accounts FinancialAccount[]
+
+  createdAt DateTime @default(now())
+
+  @@unique([code, companyId])
+  @@index([companyId])
+}
+
+// ========================
+// USUÁRIOS
+// ========================
+
+model User {
+  id       String  @id @default(uuid())
+  name     String
+  email    String  @unique
+  password String
+  isActive Boolean @default(true)
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  roles UserRole[]
+
+  createdAt DateTime @default(now())
+
+  @@index([companyId])
+}
+
+// ========================
+// RBAC
+// ========================
+
+model Role {
+  id   String @id @default(uuid())
+  name String
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  permissions Permission[]
+  users       UserRole[]
+
+  @@index([companyId])
+}
+
+model Permission {
+  id   String @id @default(uuid())
+  name String
+
+  roleId String
+  role   Role @relation(fields: [roleId], references: [id])
+
+  @@index([roleId])
+}
+
+model UserRole {
+  userId String
+  roleId String
+
+  user User @relation(fields: [userId], references: [id])
+  role Role @relation(fields: [roleId], references: [id])
+
+  @@id([userId, roleId])
+}
+
+// ========================
+// ADMINISTRATIVO
+// ========================
+
+model Driver {
+  id        String   @id @default(uuid())
+  name      String
+  document  String
+  license   String
+  phone     String?
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  licenses  License[]
+  contracts Contract[]
+
+  createdAt DateTime @default(now())
+
+  @@unique([document, companyId])
+  @@index([companyId])
+}
+
+model License {
+  id        String   @id @default(uuid())
+  type      LicenseType
+  number    String
+  expiresAt DateTime
+
+  driverId String
+  driver   Driver @relation(fields: [driverId], references: [id])
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([number, companyId])
+  @@index([driverId])
+  @@index([companyId])
+}
+
+// ========================
+// CONTRATOS
+// ========================
+
+model Contract {
+  id        String   @id @default(uuid())
+  title     String
+  amount    Decimal
+
+  startDate DateTime
+  endDate   DateTime?
+
+  recurrence RecurrenceType
+
+  driverId String
+  driver   Driver @relation(fields: [driverId], references: [id])
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([companyId])
+}
+
+// ========================
+// LOGÍSTICA
+// ========================
+
+model ServiceOrder {
+  id     String   @id @default(uuid())
+  code   String   @unique
+  title  String
+
+  status ServiceOrderStatus @default(OPEN)
+
+  value Decimal
+
+  // datas operacionais
+  scheduledAt DateTime?
+  startedAt   DateTime?
+  finishedAt  DateTime?
+
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+
+  partnerId String?
+  partner   Partner? @relation(fields: [partnerId], references: [id])
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([companyId])
+  @@index([status])
+}
+
+model Partner {
+  id        String   @id @default(uuid())
+  name      String
+  document  String?
+  email     String?
+  phone     String?
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  serviceOrders ServiceOrder[]
+  links NetworkLink[]
+
+  createdAt DateTime @default(now())
+
+  @@index([companyId])
+}
+
+model NetworkLink {
+  id String @id @default(uuid())
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  partnerId String
+  partner   Partner @relation(fields: [partnerId], references: [id])
+
+  status NetworkStatus @default(ACTIVE)
+
+  linkedAt DateTime @default(now())
+
+  createdAt DateTime @default(now())
+
+  @@unique([companyId, partnerId])
+}
+
+// ========================
+// FINANCEIRO
+// ========================
+
+model Category {
+  id          String @id @default(uuid())
+  name        String
+  type        TransactionType
+  description String?
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  transactions Transaction[]
+
+  createdAt DateTime @default(now())
+
+  @@unique([name, companyId])
+}
+
+model FinancialAccount {
+  id      String  @id @default(uuid())
+  name    String
+  balance Decimal @default(0)
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  bankId String?
+  bank   Bank? @relation(fields: [bankId], references: [id])
+
+  transactions Transaction[]
+
+  createdAt DateTime @default(now())
+}
+
+model Transaction {
+  id     String          @id @default(uuid())
+  title  String
+  amount Decimal
+  type   TransactionType
+  status TransactionStatus @default(PENDING)
+
+  dueDate DateTime
+  paidAt  DateTime?
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  accountId String
+  account   FinancialAccount @relation(fields: [accountId], references: [id])
+
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+
+  supplierId String?
+  supplier   Supplier? @relation(fields: [supplierId], references: [id])
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+// ========================
+// ENUMS
+// ========================
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum TransactionStatus {
+  PENDING
+  PAID
+  OVERDUE
+}
+
+enum LicenseType {
+  CNH
+  ANTT
+  OTHER
+}
+
+enum RecurrenceType {
+  MONTHLY
+}
+
+enum ServiceOrderStatus {
+  OPEN
+  IN_PROGRESS
+  DONE
+}
+
+enum NetworkStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
