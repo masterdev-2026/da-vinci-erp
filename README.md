@@ -272,5 +272,5 @@ Se não for mantida a modularização:
 
 ## 👨‍💻 AUTOR
 
-Jaisson Tallison  
-Estudante de Análise e Desenvolvimento de Sistemas
+Jaisson Tallison & Matheus Marques 
+Estudantes de Análise e Desenvolvimento de Sistemas
