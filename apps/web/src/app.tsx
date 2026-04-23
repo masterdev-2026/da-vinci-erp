@@ -11,6 +11,7 @@ import {
 
 import { AppShell } from "@/components/layout/app-shell";
 import { DashboardPage } from "@/modules/dashboard/dashboard-page";
+import { AccountsReceivablePage } from "@/modules/financial/pages/accounts-receivable-page";
 import {
   Card,
   CardContent,
@@ -78,10 +79,20 @@ export function App() {
 
         <Route
           path="/financeiro"
+          element={<Navigate to="/financeiro/contas-a-receber" replace />}
+        />
+
+        <Route
+          path="/financeiro/contas-a-receber"
+          element={<AccountsReceivablePage />}
+        />
+
+        <Route
+          path="/financeiro/contas-a-pagar"
           element={
             <ModulePage
-              title="Financeiro"
-              description="Módulo preparado para contas, transações, bancos, categorias, fluxo de caixa e visão consolidada do negócio."
+              title="Contas a Pagar"
+              description="Módulo preparado para despesas, vencimentos, pagamentos e visão consolidada das obrigações financeiras."
               icon={HandCoins}
             />
           }
