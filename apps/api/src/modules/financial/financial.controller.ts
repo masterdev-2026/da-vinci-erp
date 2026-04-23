@@ -1,6 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { FinancialService } from "./financial.service";
 import { devAuth } from "../../middlewares/dev-auth";
+import { createFinancialTransactionSchema } from "./financial.schema";
 
 const service = new FinancialService();
 

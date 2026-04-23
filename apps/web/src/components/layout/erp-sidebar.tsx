@@ -5,7 +5,7 @@ import {
   Activity,
   Banknote,
   Building2,
- ChevronDown,
+  ChevronDown,
   ChevronRight,
   ClipboardList,
   CreditCard,
@@ -33,8 +33,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
+
+const sidebarActiveItemClass =
+  "border border-white/10 bg-[linear-gradient(135deg,rgba(29,78,216,0.88)_0%,rgba(220,38,38,0.82)_100%)] text-white shadow-[0_10px_30px_-12px_rgba(29,78,216,0.45)]";
 
 type NavSubItem = {
   title: string;
@@ -74,7 +78,17 @@ const groups: NavGroup[] = [
           { title: "Contas a Pagar", url: "/financeiro/contas-a-pagar" },
         ],
       },
-      { title: "Cadastros", url: "/cadastros", icon: Building2 },
+      {
+  title: "Cadastros",
+  url: "/cadastros",
+  icon: Building2,
+  children: [
+    { title: "Clientes", url: "/cadastros/clientes" },
+    { title: "Fornecedores", url: "/cadastros/fornecedores" },
+    { title: "Bancos", url: "/cadastros/bancos" },
+    { title: "Categorias", url: "/cadastros/categorias" },
+  ],
+},
       { title: "Frota", url: "/frota", icon: Truck },
       { title: "RH", url: "/rh", icon: UserCog },
     ],
@@ -133,37 +147,41 @@ export function ErpSidebar() {
   return (
     <Sidebar collapsible="icon" variant="inset">
       <SidebarHeader className="px-4 py-4">
-        <div className="overflow-hidden rounded-[24px] border border-white/10 bg-[linear-gradient(135deg,rgba(29,78,216,0.22),rgba(220,38,38,0.18),rgba(15,23,42,0.94))] p-4 text-white shadow-[0_20px_50px_-24px_rgba(29,78,216,0.55)]">
-          <div className="mb-4 flex items-center gap-3">
-            <div className="flex size-11 items-center justify-center rounded-2xl bg-white/12 ring-1 ring-white/15 backdrop-blur">
-              <Truck className="size-5" />
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 overflow-hidden rounded-[24px] border border-white/10 bg-[linear-gradient(135deg,rgba(29,78,216,0.18),rgba(220,38,38,0.14),rgba(15,23,42,0.94))] p-4 text-white shadow-[0_20px_50px_-24px_rgba(29,78,216,0.40)]">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="flex size-11 items-center justify-center rounded-2xl bg-white/12 ring-1 ring-white/15 backdrop-blur">
+                <Truck className="size-5" />
+              </div>
+
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold">Da Vinci ERP</p>
+                <p className="truncate text-xs text-white/65">
+                  Enterprise Command Center
+                </p>
+              </div>
             </div>
 
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold">Da Vinci ERP</p>
-              <p className="truncate text-xs text-white/65">
-                Enterprise Command Center
-              </p>
+            <div className="grid grid-cols-3 gap-2">
+              {quickIndicators.map((item) => {
+                const Icon = item.icon;
+
+                return (
+                  <div
+                    key={item.label}
+                    className="rounded-2xl border border-white/10 bg-white/8 px-2 py-2 backdrop-blur"
+                  >
+                    <Icon className="mb-2 size-3.5 text-white/75" />
+                    <p className="text-[10px] leading-4 text-white/75">
+                      {item.label}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-2">
-            {quickIndicators.map((item) => {
-              const Icon = item.icon;
-
-              return (
-                <div
-                  key={item.label}
-                  className="rounded-2xl border border-white/10 bg-white/8 px-2 py-2 backdrop-blur"
-                >
-                  <Icon className="mb-2 size-3.5 text-white/75" />
-                  <p className="text-[10px] leading-4 text-white/75">
-                    {item.label}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
+          <SidebarTrigger className="mt-1 rounded-2xl border border-white/10 bg-card/80 shadow-sm hover:bg-card" />
         </div>
       </SidebarHeader>
 
@@ -182,7 +200,7 @@ export function ErpSidebar() {
                   const itemActive = isRouteActive(location.pathname, item.url);
                   const childActive = isAnyChildActive(
                     location.pathname,
-                    item.children
+                    item.children,
                   );
                   const isExpanded = openMenus[item.title] || childActive;
 
@@ -195,8 +213,8 @@ export function ErpSidebar() {
                           className={cn(
                             "flex h-11 w-full items-center gap-2 rounded-2xl border px-3 text-sm transition-all duration-200",
                             itemActive || childActive
-                              ? themeClasses.gradientSidebarActive
-                              : "border-transparent hover:border-white/10 hover:bg-card/70"
+                              ? sidebarActiveItemClass
+                              : "border-transparent hover:border-white/10 hover:bg-card/70",
                           )}
                         >
                           <Icon className="size-4 shrink-0" />
@@ -212,14 +230,14 @@ export function ErpSidebar() {
                         <div
                           className={cn(
                             "overflow-hidden transition-all duration-200",
-                            isExpanded ? "max-h-48 pt-2" : "max-h-0"
+                            isExpanded ? "max-h-48 pt-2" : "max-h-0",
                           )}
                         >
                           <div className="ml-4 space-y-1 border-l border-white/10 pl-3">
                             {item.children?.map((child) => {
                               const childIsActive = isRouteActive(
                                 location.pathname,
-                                child.url
+                                child.url,
                               );
 
                               return (
@@ -229,8 +247,8 @@ export function ErpSidebar() {
                                   className={cn(
                                     "flex h-10 items-center rounded-xl px-3 text-sm transition-all duration-200",
                                     childIsActive
-                                      ? "bg-primary/15 text-primary"
-                                      : "text-muted-foreground hover:bg-card/70 hover:text-foreground"
+                                      ? "border border-white/10 bg-white/10 text-foreground shadow-sm"
+                                      : "text-muted-foreground hover:bg-card/70 hover:text-foreground",
                                   )}
                                 >
                                   <Receipt className="mr-2 size-3.5 shrink-0" />
@@ -254,7 +272,7 @@ export function ErpSidebar() {
                           "h-11 rounded-2xl border border-transparent transition-all duration-200",
                           itemActive
                             ? themeClasses.gradientSidebarActive
-                            : "hover:border-white/10 hover:bg-card/70"
+                            : "hover:border-white/10 hover:bg-card/70",
                         )}
                       >
                         <NavLink to={item.url}>

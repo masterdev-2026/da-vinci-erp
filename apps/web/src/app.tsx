@@ -3,7 +3,6 @@ import {
   Activity,
   Building2,
   ClipboardList,
-  HandCoins,
   ShieldCheck,
   Truck,
   UserCog,
@@ -12,6 +11,13 @@ import {
 import { AppShell } from "@/components/layout/app-shell";
 import { DashboardPage } from "@/modules/dashboard/dashboard-page";
 import { AccountsReceivablePage } from "@/modules/financial/pages/accounts-receivable-page";
+import { AccountsPayablePage } from "@/modules/financial/pages/accounts-payable-page";
+import { ClientsPage } from "@/modules/registry/pages/clients-page";
+import { SuppliersPage } from "@/modules/registry/pages/suppliers-page";
+import { BanksPage } from "@/modules/registry/pages/banks-page";
+import { CategoriesPage } from "@/modules/registry/pages/categories-page";
+
+
 import {
   Card,
   CardContent,
@@ -89,14 +95,13 @@ export function App() {
 
         <Route
           path="/financeiro/contas-a-pagar"
-          element={
-            <ModulePage
-              title="Contas a Pagar"
-              description="Módulo preparado para despesas, vencimentos, pagamentos e visão consolidada das obrigações financeiras."
-              icon={HandCoins}
-            />
-          }
+          element={<AccountsPayablePage />}
         />
+
+        <Route path="/cadastros/clientes" element={<ClientsPage />} />
+        <Route path="/cadastros/fornecedores" element={<SuppliersPage />} />
+        <Route path="/cadastros/bancos" element={<BanksPage />} />
+        <Route path="/cadastros/categorias" element={<CategoriesPage />} />
 
         <Route
           path="/cadastros"

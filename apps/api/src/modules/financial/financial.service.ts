@@ -1,4 +1,5 @@
 import { prisma } from "@davinci/database";
+import { CreateFinancialTransactionInput } from "./financial.schema";
 
 export class FinancialService {
 
@@ -90,6 +91,31 @@ export class FinancialService {
       orderBy: {
         createdAt: "asc" // importante pro saldo progressivo
       }
+    });
+  }
+
+    async createTransaction(
+    companyId: string,
+    input: CreateFinancialTransactionInput
+  ) {
+    return prisma.transaction.create({
+      data: {
+        title: input.title,
+        amount: input.amount,
+        type: input.type,
+        status: input.status,
+        dueDate: input.dueDate,
+        paidAt: input.paidAt ?? null,
+        categoryId: input.categoryId,
+        accountId: input.accountId,
+        customerId: input.customerId ?? null,
+        supplierId: input.supplierId ?? null,
+        companyId,
+      },
+      include: {
+        category: true,
+        account: true,
+      },
     });
   }
 }

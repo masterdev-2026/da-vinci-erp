@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import type { FinancialTransaction } from "../types/financial.types";
-import { getReceivables } from "../services/financial.service";
+import { getPayables } from "../services/financial.service";
 
-export function useReceivables() {
+export function usePayables() {
   return useQuery<FinancialTransaction[]>({
-    queryKey: ["financial", "receivables"],
-    queryFn: getReceivables,
+    queryKey: ["financial", "payables"],
+    queryFn: getPayables,
     staleTime: 1000 * 60,
     refetchOnWindowFocus: false,
   });
