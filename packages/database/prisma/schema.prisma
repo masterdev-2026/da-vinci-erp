@@ -35,6 +35,31 @@ model Company {
   partners      Partner[]
   networkLinks  NetworkLink[]
 
+  vehicles     Vehicle[]
+  maintenances Maintenance[]
+  fuelLogs     FuelLog[]
+  fines        Fine[]
+  inspections  Inspection[]
+
+  employees     Employee[]
+  positions     Position[]
+  admissions    Admission[]
+  terminations  Termination[]
+  salaryHistory SalaryHistory[]
+
+  timeRecords          TimeRecord[]
+  overtimeBanks        OvertimeBank[]
+  vacations            Vacation[]
+  leaves               Leave[]
+  requests             Request[]
+  equipments           Equipment[]
+  equipmentAssignments EquipmentAssignment[]
+  jobOpenings          JobOpening[]
+  candidates           Candidate[]
+  applications         Application[]
+  payrolls             Payroll[]
+  auditLogs AuditLog[]
+
   @@index([name])
 }
 
@@ -43,11 +68,11 @@ model Company {
 // ========================
 
 model Customer {
-  id        String   @id @default(uuid())
-  name      String
-  document  String?
-  email     String?
-  phone     String?
+  id       String  @id @default(uuid())
+  name     String
+  document String?
+  email    String?
+  phone    String?
 
   companyId String
   company   Company @relation(fields: [companyId], references: [id])
@@ -61,11 +86,11 @@ model Customer {
 }
 
 model Supplier {
-  id        String   @id @default(uuid())
-  name      String
-  document  String?
-  email     String?
-  phone     String?
+  id       String  @id @default(uuid())
+  name     String
+  document String?
+  email    String?
+  phone    String?
 
   companyId String
   company   Company @relation(fields: [companyId], references: [id])
@@ -90,7 +115,6 @@ model Bank {
   createdAt DateTime @default(now())
 
   @@unique([code, companyId])
-  @@index([companyId])
 }
 
 // ========================
@@ -108,10 +132,9 @@ model User {
   company   Company @relation(fields: [companyId], references: [id])
 
   roles UserRole[]
+  auditLogs AuditLog[]
 
   createdAt DateTime @default(now())
-
-  @@index([companyId])
 }
 
 // ========================
@@ -127,8 +150,6 @@ model Role {
 
   permissions Permission[]
   users       UserRole[]
-
-  @@index([companyId])
 }
 
 model Permission {
@@ -136,9 +157,7 @@ model Permission {
   name String
 
   roleId String
-  role   Role @relation(fields: [roleId], references: [id])
-
-  @@index([roleId])
+  role   Role   @relation(fields: [roleId], references: [id])
 }
 
 model UserRole {
@@ -156,11 +175,11 @@ model UserRole {
 // ========================
 
 model Driver {
-  id        String   @id @default(uuid())
-  name      String
-  document  String
-  license   String
-  phone     String?
+  id       String  @id @default(uuid())
+  name     String
+  document String
+  license  String
+  phone    String?
 
   companyId String
   company   Company @relation(fields: [companyId], references: [id])
@@ -171,11 +190,10 @@ model Driver {
   createdAt DateTime @default(now())
 
   @@unique([document, companyId])
-  @@index([companyId])
 }
 
 model License {
-  id        String   @id @default(uuid())
+  id        String      @id @default(uuid())
   type      LicenseType
   number    String
   expiresAt DateTime
@@ -185,12 +203,6 @@ model License {
 
   companyId String
   company   Company @relation(fields: [companyId], references: [id])
-
-  createdAt DateTime @default(now())
-
-  @@unique([number, companyId])
-  @@index([driverId])
-  @@index([companyId])
 }
 
 // ========================
@@ -198,9 +210,9 @@ model License {
 // ========================
 
 model Contract {
-  id        String   @id @default(uuid())
-  title     String
-  amount    Decimal
+  id     String  @id @default(uuid())
+  title  String
+  amount Decimal
 
   startDate DateTime
   endDate   DateTime?
@@ -214,8 +226,6 @@ model Contract {
   company   Company @relation(fields: [companyId], references: [id])
 
   createdAt DateTime @default(now())
-
-  @@index([companyId])
 }
 
 // ========================
@@ -223,15 +233,12 @@ model Contract {
 // ========================
 
 model ServiceOrder {
-  id     String   @id @default(uuid())
-  code   String   @unique
+  id     String             @id @default(uuid())
+  code   String             @unique
   title  String
-
   status ServiceOrderStatus @default(OPEN)
+  value  Decimal
 
-  value Decimal
-
-  // datas operacionais
   scheduledAt DateTime?
   startedAt   DateTime?
   finishedAt  DateTime?
@@ -244,29 +251,17 @@ model ServiceOrder {
 
   companyId String
   company   Company @relation(fields: [companyId], references: [id])
-
-  createdAt DateTime @default(now())
-
-  @@index([companyId])
-  @@index([status])
 }
 
 model Partner {
-  id        String   @id @default(uuid())
-  name      String
-  document  String?
-  email     String?
-  phone     String?
+  id   String @id @default(uuid())
+  name String
 
   companyId String
   company   Company @relation(fields: [companyId], references: [id])
 
   serviceOrders ServiceOrder[]
-  links NetworkLink[]
-
-  createdAt DateTime @default(now())
-
-  @@index([companyId])
+  NetworkLink   NetworkLink[]
 }
 
 model NetworkLink {
@@ -279,12 +274,460 @@ model NetworkLink {
   partner   Partner @relation(fields: [partnerId], references: [id])
 
   status NetworkStatus @default(ACTIVE)
+}
 
-  linkedAt DateTime @default(now())
+// ========================
+// RECURSOS HUMANOS
+// ========================
+
+model Employee {
+  id       String  @id @default(uuid())
+  name     String
+  document String
+  email    String?
+  phone    String?
+
+  positionId String
+  position   Position @relation(fields: [positionId], references: [id])
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  status EmployeeStatus @default(ACTIVE)
+
+  admissions   Admission[]
+  terminations Termination[]
+  salaries     SalaryHistory[]
+
+  timeRecords          TimeRecord[]
+  overtimeBanks        OvertimeBank[]
+  vacations            Vacation[]
+  leaves               Leave[]
+  requests             Request[]
+  equipmentAssignments EquipmentAssignment[]
+  payrolls             Payroll[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId])
+}
+
+model Position {
+  id   String @id @default(uuid())
+  name String
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  employees Employee[]
+
+  createdAt DateTime @default(now())
+}
+
+model Admission {
+  id         String   @id @default(uuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  date   DateTime
+  salary Float
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model Termination {
+  id         String   @id @default(uuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  date   DateTime
+  reason String?
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model SalaryHistory {
+  id         String   @id @default(uuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  salary Float
+  date   DateTime
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model TimeRecord {
+  id String @id @default(uuid())
+
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  type TimeRecordType
+
+  timestamp DateTime
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
 
   createdAt DateTime @default(now())
 
-  @@unique([companyId, partnerId])
+  @@index([employeeId])
+  @@index([companyId])
+}
+
+model OvertimeBank {
+  id String @id @default(uuid())
+
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  minutes Int
+
+  type OvertimeType
+
+  referenceDate DateTime
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([employeeId])
+  @@index([companyId])
+}
+
+model Vacation {
+  id String @id @default(uuid())
+
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  startDate DateTime
+  endDate   DateTime
+
+  status VacationStatus @default(PENDING)
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([employeeId])
+  @@index([companyId])
+}
+
+model Leave {
+  id String @id @default(uuid())
+
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  type LeaveType
+
+  startDate DateTime
+  endDate   DateTime?
+
+  reason String?
+
+  status LeaveStatus @default(PENDING)
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([employeeId])
+  @@index([companyId])
+}
+
+model Request {
+  id String @id @default(uuid())
+
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  type RequestType
+
+  title       String
+  description String?
+
+  status RequestStatus @default(PENDING)
+
+  response String?
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([employeeId])
+  @@index([companyId])
+}
+
+model Equipment {
+  id String @id @default(uuid())
+
+  name        String
+  description String?
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  assignments EquipmentAssignment[]
+
+  createdAt DateTime @default(now())
+
+  @@index([companyId])
+}
+
+model EquipmentAssignment {
+  id String @id @default(uuid())
+
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  equipmentId String
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+
+  deliveredAt DateTime
+  returnedAt  DateTime?
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([employeeId])
+  @@index([companyId])
+}
+
+model JobOpening {
+  id String @id @default(uuid())
+
+  title       String
+  description String?
+
+  status JobStatus @default(OPEN)
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  applications Application[]
+
+  createdAt DateTime @default(now())
+
+  @@index([companyId])
+}
+
+model Candidate {
+  id String @id @default(uuid())
+
+  name  String
+  email String?
+  phone String?
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  applications Application[]
+
+  createdAt DateTime @default(now())
+
+  @@index([companyId])
+}
+
+model Application {
+  id String @id @default(uuid())
+
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id])
+
+  jobId String
+  job   JobOpening @relation(fields: [jobId], references: [id])
+
+  status ApplicationStatus @default(APPLIED)
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([companyId])
+}
+
+model Payroll {
+  id String @id @default(uuid())
+
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  referenceMonth Int
+  referenceYear  Int
+
+  baseSalary Float
+  netSalary  Float
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  items PayrollItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([employeeId, referenceMonth, referenceYear, companyId])
+  @@index([employeeId])
+  @@index([companyId])
+}
+
+model PayrollItem {
+  id String @id @default(uuid())
+
+  payrollId String
+  payroll   Payroll @relation(fields: [payrollId], references: [id])
+
+  description String
+  amount      Float
+
+  type PayrollItemType
+
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id String @id @default(uuid())
+
+  userId String?
+  user   User? @relation(fields: [userId], references: [id])
+
+  action String
+  entity String
+  entityId String?
+
+  data Json?
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([companyId])
+  @@index([userId])
+}
+
+// ========================
+// GESTÃO DE FROTAS
+// ========================
+
+model Vehicle {
+  id    String @id @default(uuid())
+  plate String
+  model String
+  brand String
+  year  Int
+
+  status VehicleStatus @default(ACTIVE)
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  maintenances Maintenance[]
+  fuelLogs     FuelLog[]
+  fines        Fine[]
+  inspections  Inspection[]
+
+  createdAt DateTime @default(now())
+
+  @@unique([plate, companyId])
+}
+
+model Maintenance {
+  id          String            @id @default(uuid())
+  type        MaintenanceType
+  description String
+  cost        Decimal           @default(0)
+  status      MaintenanceStatus @default(PENDING)
+
+  vehicleId String
+  vehicle   Vehicle @relation(fields: [vehicleId], references: [id])
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([companyId])
+  @@index([vehicleId])
+}
+
+model FuelLog {
+  id         String  @id @default(uuid())
+  liters     Float
+  price      Decimal
+  km         Float
+  kmPerLiter Float?
+
+  vehicleId String
+  vehicle   Vehicle @relation(fields: [vehicleId], references: [id])
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([vehicleId])
+  @@index([companyId])
+}
+
+model Fine {
+  id          String     @id @default(uuid())
+  code        String
+  description String
+  amount      Decimal
+  status      FineStatus @default(PENDING)
+
+  vehicleId String
+  vehicle   Vehicle @relation(fields: [vehicleId], references: [id])
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([vehicleId])
+  @@index([companyId])
+}
+
+model Inspection {
+  id    String  @id @default(uuid())
+  notes String?
+
+  items Json?
+
+  status InspectionStatus @default(PENDING)
+
+  vehicleId String
+  vehicle   Vehicle @relation(fields: [vehicleId], references: [id])
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([vehicleId])
+  @@index([companyId])
 }
 
 // ========================
@@ -292,19 +735,14 @@ model NetworkLink {
 // ========================
 
 model Category {
-  id          String @id @default(uuid())
-  name        String
-  type        TransactionType
-  description String?
+  id   String          @id @default(uuid())
+  name String
+  type TransactionType
 
   companyId String
   company   Company @relation(fields: [companyId], references: [id])
 
   transactions Transaction[]
-
-  createdAt DateTime @default(now())
-
-  @@unique([name, companyId])
 }
 
 model FinancialAccount {
@@ -315,16 +753,13 @@ model FinancialAccount {
   companyId String
   company   Company @relation(fields: [companyId], references: [id])
 
-  bankId String?
-  bank   Bank? @relation(fields: [bankId], references: [id])
-
   transactions Transaction[]
-
-  createdAt DateTime @default(now())
+  Bank         Bank?         @relation(fields: [bankId], references: [id])
+  bankId       String?
 }
 
 model Transaction {
-  id     String          @id @default(uuid())
+  id     String            @id @default(uuid())
   title  String
   amount Decimal
   type   TransactionType
@@ -333,12 +768,14 @@ model Transaction {
   dueDate DateTime
   paidAt  DateTime?
 
+  // RELAÇÕES OBRIGATÓRIAS
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id])
 
   accountId String
   account   FinancialAccount @relation(fields: [accountId], references: [id])
 
+  // RELAÇÕES OPCIONAIS (CORRIGE SEU ERRO)
   customerId String?
   customer   Customer? @relation(fields: [customerId], references: [id])
 
@@ -349,6 +786,9 @@ model Transaction {
   company   Company @relation(fields: [companyId], references: [id])
 
   createdAt DateTime @default(now())
+
+  @@index([companyId])
+  @@index([categoryId])
 }
 
 // ========================
@@ -386,4 +826,100 @@ enum NetworkStatus {
   ACTIVE
   INACTIVE
   BLOCKED
+}
+
+enum VehicleStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum MaintenanceType {
+  PREVENTIVE
+  CORRECTIVE
+}
+
+enum MaintenanceStatus {
+  PENDING
+  COMPLETED
+}
+
+enum FineStatus {
+  PENDING
+  PAID
+}
+
+enum InspectionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum TimeRecordType {
+  CLOCK_IN
+  CLOCK_OUT
+}
+
+enum OvertimeType {
+  CREDIT
+  DEBIT
+}
+
+enum VacationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum LeaveType {
+  MEDICAL
+  MATERNITY
+  ACCIDENT
+  OTHER
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum RequestType {
+  VACATION
+  LEAVE
+  ADVANCE
+  SHIFT_CHANGE
+  OTHER
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum JobStatus {
+  OPEN
+  CLOSED
+}
+
+enum ApplicationStatus {
+  APPLIED
+  INTERVIEW
+  APPROVED
+  REJECTED
+}
+
+enum PayrollStatus {
+  PENDING
+  CLOSED
+}
+
+enum PayrollItemType {
+  EARNING
+  DEDUCTION
 }

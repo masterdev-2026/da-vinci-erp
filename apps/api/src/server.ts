@@ -17,9 +17,28 @@ import { bankController } from "./modules/bank/bank.controller";
 import { reportController } from "./modules/report/report.controller";
 import { serviceOrderController } from "./modules/service-order/service-order.controller";
 import { networkController } from "./modules/network/network.controller";
+import { vehicleController } from "./modules/vehicle/vehicle.controller";
+import { maintenanceController } from "./modules/maintenance/maintenance.controller";
+import { fuelController } from "./modules/fuel/fuel.controller";
 
 // error
 import { AppError } from "./shared/errors/app-error";
+import { fineController } from "./modules/fine/fine.controller";
+import { fleetDashboardController } from "./modules/fleet-dashboard/fleet-dashboard.controller";
+import { inspectionController } from "./modules/inspection/inspection.controller";
+import { employeeController } from "./modules/employee/employee.controller";
+import { positionController } from "./modules/position/position.controller";
+import { timeRecordController } from "./modules/time-record/time-record.controller";
+import { overtimeController } from "./modules/overtime/overtime.controller";
+import { vacationController } from "./modules/vacation/vacation.controller";
+import { leaveController } from "./modules/leave/leave.controller";
+import { requestController } from "./modules/request/request.controller";
+import { equipmentController } from "./modules/equipment/equipment.controller";
+import { recruitmentController } from "./modules/recruitment/recruitment.controller";
+import { payrollController } from "./modules/payroll/payroll.controller";
+import { hrDashboardController } from "./modules/hr-dashboard/hr-dashboard.controller";
+
+
 
 async function start() {
   const app = Fastify();
@@ -67,7 +86,25 @@ async function start() {
   await app.register(bankController);
   await app.register(reportController);
   await app.register(serviceOrderController);
-  await app.register(networkController);
+  await app.register(networkController); 
+  await app.register(vehicleController); 
+  await app.register(maintenanceController); 
+  await app.register(fuelController); 
+  await app.register(fineController);
+  await app.register(fleetDashboardController);
+  await app.register(inspectionController);
+  await app.register(employeeController);
+  await app.register(positionController);
+  await app.register(timeRecordController);
+  await app.register(overtimeController);
+  await app.register(vacationController);
+  await app.register(leaveController);
+  await app.register(requestController);
+  await app.register(equipmentController);
+  await app.register(recruitmentController);
+  await app.register(payrollController);
+  await app.register(hrDashboardController);
+
 
   // ========================
   // HEALTH
